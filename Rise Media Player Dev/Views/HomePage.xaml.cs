@@ -53,18 +53,8 @@ namespace Rise.App.Views
 
         private async void GridView_ItemClick(object sender, ItemClickEventArgs e)
         {
-            var item = e.ClickedItem as TiledImage;
+            TiledImage item = e.ClickedItem as TiledImage;
             await _dialog.OpenFeatureAsync(int.Parse(item.Tag.ToString()));
-        }
-
-        private void AdaptiveItemPane_Loaded(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void AdaptiveItemPane_Loaded_1(object sender, RoutedEventArgs e)
-        {
-
         }
 
         private void CommandBarButton_Click(object sender, RoutedEventArgs e)
@@ -81,11 +71,6 @@ namespace Rise.App.Views
                     break;
 
             }
-        }
-
-        private void VTip_CloseButtonClick(Microsoft.UI.Xaml.Controls.TeachingTip sender, object args)
-        {
-
         }
 
         private async void VTip_ActionButtonClick(Microsoft.UI.Xaml.Controls.TeachingTip sender, object args)

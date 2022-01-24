@@ -31,7 +31,10 @@ namespace Rise.App
     public sealed partial class App : Application
     {
         #region Variables
-
+        public Uri urilink;
+        public string sessionkey;
+        public string token;
+        public string signature;
         public static StorageFolder PlaylistsFolder { get; set; }
 
         /// <summary>
@@ -112,6 +115,8 @@ namespace Rise.App
                 case 1:
                     RequestedTheme = ApplicationTheme.Dark;
                     break;
+                default:
+                    break;
             }
 
             InitializeComponent();
@@ -143,6 +148,11 @@ namespace Rise.App
 
         protected async override void OnActivated(IActivatedEventArgs e)
         {
+            if (e.Kind == ActivationKind.Protocol)
+            {
+                Frame rootFrame = await InitializeWindowAsync(e);
+                rootFrame.Navigate(typeof(MainPage));
+            }
             if (e is ToastNotificationActivatedEventArgs toastActivationArgs)
             {
                 QueryString args = QueryString.Parse(toastActivationArgs.Argument);

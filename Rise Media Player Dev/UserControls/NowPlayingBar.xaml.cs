@@ -1,28 +1,30 @@
-﻿using System;
+﻿using ColorThiefDotNet;
+using Microsoft.Toolkit.Uwp.UI;
+using Rise.App.Common;
+using Rise.App.Converters;
+using Rise.App.ViewModels;
+using Rise.App.Views;
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
+using System.Web;
 using Windows.Foundation;
+using Windows.Graphics.Imaging;
+using Windows.Media.Casting;
+using Windows.Media.Playback;
+using Windows.Storage.Streams;
+using Windows.System;
+using Windows.UI;
+using Windows.UI.Core;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
-using Windows.UI;
-using Windows.Media.Playback;
-using Windows.ApplicationModel.Core;
-using Windows.UI.Core;
-using Windows.UI.ViewManagement;
-using Microsoft.Toolkit.Uwp.UI;
-using Windows.Storage.Streams;
-using Windows.Graphics.Imaging;
-using ColorThiefDotNet;
-using Rise.App.Converters;
-using Rise.App.ViewModels;
-using Rise.App.Common;
-using Rise.App.Views;
-using System.Diagnostics;
-using Windows.Media.Casting;
-using Windows.UI.Xaml.Media.Imaging;
-using Windows.System;
 
 namespace Rise.App.UserControls
 {
@@ -290,7 +292,6 @@ namespace Rise.App.UserControls
                 Visibility = Visibility.Visible;
             });
         }
-
         private async void PViewModel_CurrentVideoChanged(object sender, EventArgs e)
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
@@ -622,7 +623,8 @@ namespace Rise.App.UserControls
                 _player.IsMuted = true;
                 VolumeSlider.Value = 0;
                 volumeIcon.Glyph = "\uE74F";
-            } else
+            }
+            else
             {
                 _player.IsMuted = false;
                 VolumeSlider.Value = VolumeSlider.Maximum;

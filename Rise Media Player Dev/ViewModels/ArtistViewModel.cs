@@ -1,18 +1,15 @@
 ﻿using Rise.Models;
 using Rise.App.Common;
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Web;
-using Windows.Data.Xml.Dom;
 
 namespace Rise.App.ViewModels
 {
     public class ArtistViewModel : ViewModel<Artist>
     {
         // private readonly DispatcherQueue dispatcherQueue = DispatcherQueue.GetForCurrentThread();
-
+        
         /// <summary>
         /// Initializes a new instance of the ArtistViewModel class that wraps an Artist object.
         /// </summary>
@@ -63,82 +60,13 @@ namespace Rise.App.ViewModels
                 }
             }
         }
-
-        public async Task<string> GetPictureAsync()
-        {
-            string name = HttpUtility.UrlEncode(Name);
-            string xml;
-
-            try
-            {
-                xml = await WebHelpers.
-                    CreateGETRequestAsync(URLs.MusicBrainz + "artist/?query=artist:" + name);
-            }
-            catch
-            {
-                return Resources.MusicThumb;
-            }
-
-            if (xml == null)
-            {
-                return Resources.MusicThumb;
-            }
-
-            XmlDocument doc = new XmlDocument();
-            doc.LoadXml(xml);
-
-            XmlNodeList nodes = doc.GetElementsByTagName("artist");
-
-            string id = "";
-            foreach (IXmlNode node in nodes)
-            {
-                XmlNamedNodeMap attrs = node.Attributes;
-                IXmlNode idAttr = attrs.GetNamedItem("id");
-
-                if (idAttr != null)
-                {
-                    id = idAttr.InnerText;
-                    break;
-                }
-            }
-
-            if (id != "")
-            {
-                xml = await WebHelpers.
-                    CreateGETRequestAsync(URLs.MusicBrainz + "artist/" + id + "?inc=url-rels");
-
-                doc.LoadXml(xml);
-
-                nodes = doc.GetElementsByTagName("relation");
-
-                string img;
-                foreach (IXmlNode node in nodes)
-                {
-                    XmlNamedNodeMap attrs = node.Attributes;
-                    IXmlNode type = attrs.GetNamedItem("type");
-
-                    if (type.InnerText == "image")
-                    {
-                        img = node.FirstChild.InnerText;
-
-                        string path = await WebHelpers.SaveImageFromURLAsync(img, $@"{name}.png");
-                        Debug.WriteLine(path);
-
-                        if (path != "/")
-                        {
-                            return $@"ms-appdata:///local/{path}.png";
-                        }
-                    }
-                }
-            }
-
-            return Resources.MusicThumb;
-        }
+        
 
         /// <summary>
         /// Gets or sets the artist's song count.
         /// </summary>
         public int SongCount => App.MViewModel.Songs.Count(s => s.Model.Artist == Model.Name);
+        
         public string Songs => SongCount.ToString() + " " + ResourceLoaders.MediaDataLoader.GetString("Songs");
 
         /// <summary>
@@ -146,6 +74,12 @@ namespace Rise.App.ViewModels
         /// </summary>
         public int AlbumCount => App.MViewModel.Albums.Count(a => a.Model.Artist == Model.Name);
         public string Albums => AlbumCount.ToString() + " " + ResourceLoaders.MediaDataLoader.GetString("Albums");
+
+        /// <summary>
+        /// Combination of artist's song count and album count.
+        /// </summary>
+        public string SongsNAlbums => Albums + ", " + Songs;
+
 
         /// <summary>
         /// Gets or sets a value that indicates whether the underlying model has been modified. 

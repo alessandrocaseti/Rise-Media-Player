@@ -52,7 +52,7 @@ namespace Rise.App.Views
             await PViewModel.PlayVideoAsync(e.ClickedItem as VideoViewModel);
             if (Window.Current.Content is Frame rootFrame)
             {
-                rootFrame.Navigate(typeof(VideoPlaybackPage));
+                _ = rootFrame.Navigate(typeof(VideoPlaybackPage));
             }
         }
 
@@ -73,11 +73,6 @@ namespace Rise.App.Views
                     rootFrame.Navigate(typeof(VideoPlaybackPage));
                 }
             }
-        }
-
-        private void GridView_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
-        {
-
         }
 
         private void AskDiscy_Click(object sender, RoutedEventArgs e)

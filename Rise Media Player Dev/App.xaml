@@ -6,6 +6,7 @@
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:rd="using:Rise.App.ResourceDictionaries">
     <Application.Resources>
+
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <rd:SongTemplates />
@@ -46,7 +47,6 @@
                 CornerRadius="8"
                 Opacity=".075"
                 Offset="0,4,0" />
-
             <!--#region Styles-->
             <Style BasedOn="{StaticResource DefaultListViewItemStyle}" TargetType="ListViewItem">
                 <Setter Property="MinHeight" Value="0" />
@@ -137,7 +137,6 @@
             <!--#endregion-->
 
         </ResourceDictionary>
-
     </Application.Resources>
 
 </Application>

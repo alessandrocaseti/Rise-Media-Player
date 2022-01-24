@@ -7,9 +7,9 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:animations="using:Microsoft.Toolkit.Uwp.UI.Animations"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-    xmlns:ui="using:Microsoft.Toolkit.Uwp.UI"
     xmlns:converters="using:Rise.App.Converters"
-    xmlns:viewmodels="using:Rise.App.ViewModels" xmlns:media="using:Microsoft.Toolkit.Uwp.UI.Media"
+    xmlns:viewmodels="using:Rise.App.ViewModels" 
+    xmlns:media="using:Microsoft.Toolkit.Uwp.UI.Media"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -36,7 +36,7 @@
             <StackPanel>
                 <Border>
                     <Border.Background>
-                        <ImageBrush Stretch="UniformToFill" ImageSource="{x:Bind SelectedArtist.Picture, Mode=OneWay}" Opacity="0.6" />
+                        <ImageBrush x:Name="ArtistImg" Stretch="UniformToFill" ImageSource="{x:Bind SelectedArtist.Picture, Mode=OneWay}" Opacity="0.6" />
                     </Border.Background>
                     <Grid ColumnSpacing="24" Padding="60,24,56,25">
                         <Grid.Background>
@@ -53,6 +53,7 @@
                             <Border animations:Connected.Key="ArtistArt"
                                     CornerRadius="77">
                                 <Image
+                                    x:Name="ArtistImage"
                                        Height="154"
                                        Source="{x:Bind SelectedArtist.Picture, Mode=OneWay}"
                                        Stretch="UniformToFill"
@@ -64,12 +65,25 @@
                                     Orientation="Vertical"
                                     Spacing="8"
                                         Padding="0,10,0,0">
-                            <TextBlock Text="{x:Bind SelectedArtist.Name, Mode=OneWay}"
-                                       MaxLines="1"
-                                       Style="{StaticResource TitleTextBlockStyle}" />
+                            <Grid ColumnSpacing="4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
 
-                            <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{x:Bind SelectedArtist.Songs, Mode=OneWay}" />
-                            <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{x:Bind SelectedArtist.Albums, Mode=OneWay}" />
+                                <TextBlock x:Name="ArtistName" Text="{x:Bind Mode=OneWay, Path=SelectedArtist.Name}"
+                                       MaxLines="1"
+                                       Style="{StaticResource TitleTextBlockStyle}" Width="1083" />
+
+                            </Grid>
+                            <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{x:Bind Mode=OneWay, Path=SelectedArtist.SongsNAlbums}" x:Name="SongAlbums"/>
+                            <HyperlinkButton Padding="-1.8,0,0,0" Click="HyperlinkButton_Click" >
+                                <StackPanel>
+                                    <TextBlock FontWeight="SemiBold" x:Name="AboutArtist" TextWrapping="WrapWholeWords" TextTrimming="WordEllipsis" MaxLines="1"></TextBlock>                                                                        
+                                </StackPanel>
+                            </HyperlinkButton>
+
 
                             <CommandBar Background="Transparent"
                                         DefaultLabelPosition="Right"
@@ -122,7 +136,7 @@
                                 <AppBarButton x:Uid="/Information/Edit"
                                               Click="EditButton_Click"
                                               Icon="Edit"
-                                              IsEnabled="{Binding ElementName=Root, Path=SelectedSong, Converter={StaticResource NullToBool}, Mode=OneWay}"
+                                              IsEnabled="{Binding SelectedSong, Converter={StaticResource NullToBool}, ElementName=Root, Mode=OneWay}"
                                               Style="{StaticResource AppBarCompactButton}" />
 
                                 <AppBarSeparator />
@@ -164,10 +178,9 @@
                         </StackPanel>
                     </Grid>
                 </Border>
-                
                 <StackPanel Padding="56,0">
-                    <TextBlock Padding="10,60,20,10" Text="Discography" FontSize="16" Style="{StaticResource Subheader}" />
-                    <muxc:NavigationView ItemInvoked="NavigationView_ItemInvoked" IsSettingsVisible="False"  SelectedItem="{x:Bind AlbumsItem}" Margin="0,0,0,10" PaneDisplayMode="Top" IsBackButtonVisible="Collapsed">
+                    <TextBlock Padding="10,22,20,7" Text="Discography" FontSize="16" Style="{StaticResource Subheader}"/>
+                    <muxc:NavigationView ItemInvoked="NavigationView_ItemInvoked" IsSettingsVisible="False"  SelectedItem="{x:Bind Path=AlbumsItem}" Margin="0,0,0,5" PaneDisplayMode="Top" IsBackButtonVisible="Collapsed">
                         <muxc:NavigationView.MenuItems>
                             <muxc:NavigationViewItem x:Name="AlbumsItem" Content="Songs" />
                             <muxc:NavigationViewItem x:Name="SongsItem" Content="Albums" />
@@ -178,7 +191,7 @@
                         <GridView 
                               x:Name="AlbumsGrid"
                               Grid.Row="1"
-                              ItemsSource="{x:Bind Albums}"
+                              ItemsSource="{x:Bind Path=Albums}"
                               RightTapped="MainGrid_RightTapped"
                               SelectionMode="Single"
                               Tapped="GridView_Tapped"
@@ -195,12 +208,12 @@
                                                Stretch="UniformToFill"
                                                Width="134">
                                                 <Image.Source>
-                                                    <BitmapImage UriSource="{x:Bind Thumbnail}" />
+                                                    <BitmapImage UriSource="{x:Bind Path=Thumbnail}" />
                                                 </Image.Source>
                                             </Image>
                                         </Border>
 
-                                        <TextBlock Text="{x:Bind Title}"
+                                        <TextBlock Text="{x:Bind Path=Title}"
                                                Padding="0,7,0,0"
                                                MaxLines="1"
                                                Style="{StaticResource BaseTextBlockStyle}"
@@ -214,11 +227,11 @@
                             Grid.Row="1"
                             DoubleTapped="MainList_DoubleTapped"
                             IsDoubleTapEnabled="True"
-                            ItemsSource="{x:Bind Songs}"
+                            ItemsSource="{x:Bind Path=Songs}"
                             Margin="-56,0"
-                            Padding="44,0,44,120"
+                            Padding="44,0,44,44"
                             RightTapped="MainList_RightTapped"
-                            SelectedItem="{x:Bind SelectedSong, Mode=TwoWay}"
+                            SelectedItem="{x:Bind Mode=TwoWay, Path=SelectedSong}"
                             SelectionMode="Single"
                             PointerWheelChanged="MainList_PointerWheelChanged"
                             Visibility="Visible">
@@ -306,11 +319,11 @@
                             <ListView.ItemTemplate>
                                 <DataTemplate x:DataType="viewmodels:SongViewModel">
                                     <Grid Background="Transparent"
-                          ColumnSpacing="12"
-                          Padding="12,4"
-                          PointerEntered="Grid_PointerEntered"
-                          PointerExited="Grid_PointerExited"
-                          PointerCanceled="Grid_PointerExited">
+                                          ColumnSpacing="12"
+                                          Padding="12,4"
+                                          PointerEntered="Grid_PointerEntered"
+                                          PointerExited="Grid_PointerExited"
+                                          PointerCanceled="Grid_PointerExited">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto" />
                                             <ColumnDefinition Width="1*" />
@@ -318,28 +331,25 @@
                                         </Grid.ColumnDefinitions>
 
                                         <TextBlock HorizontalAlignment="Stretch"
-                                   Text="{x:Bind Track}"
-                                   TextAlignment="Right"
-                                   VerticalAlignment="Center"
-                                   Visibility="{x:Bind IsFocused,
-                                                Converter={StaticResource BoolToVis},
-                                                ConverterParameter=Reverse,
-                                                Mode=OneWay}"
-                                   Width="24" />
+                                                   Text="{x:Bind Path=Track}"
+                                                   TextAlignment="Right"
+                                                   VerticalAlignment="Center"
+                                                   Visibility="{x:Bind Converter={StaticResource BoolToVis}, ConverterParameter=Reverse, Mode=OneWay, Path=IsFocused}"
+                                                   Width="24" />
 
                                         <Button x:Uid="/Information/Play"
-                                Click="PlayButton_Click"
-                                Height="32"
-                                Padding="0"
-                                Style="{StaticResource TransparentButton}"
-                                Visibility="{x:Bind IsFocused, Mode=OneWay}"
-                                Width="32">
+                                                Click="PlayButton_Click"
+                                                Height="32"
+                                                Padding="0"
+                                                Style="{StaticResource TransparentButton}"
+                                                Visibility="{x:Bind Mode=OneWay, Path=IsFocused}"
+                                                Width="32">
                                             <FontIcon FontSize="16" Glyph="&#xE102;" />
                                         </Button>
 
                                         <StackPanel Grid.Column="1" Orientation="Vertical">
-                                            <TextBlock Text="{x:Bind Title}"
-                                       TextTrimming="CharacterEllipsis" />
+                                            <TextBlock Text="{x:Bind Path=Title}"
+                                                       TextTrimming="CharacterEllipsis" />
 
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
@@ -347,11 +357,7 @@
                                                     <ColumnDefinition Width="1*" />
                                                 </Grid.ColumnDefinitions>
 
-                                                <TextBlock>
-                                    <Hyperlink Click="Album_Click" UnderlineStyle="None">
-                                        <Run Text="{x:Bind Album}" />
-                                    </Hyperlink>
-                                                </TextBlock>
+                                                <TextBlock><Hyperlink Click="Album_Click" UnderlineStyle="None"><Run Text="{x:Bind Path=Album}" /></Hyperlink></TextBlock>
 
                                                 <Rectangle Grid.Column="1" />
                                             </Grid>
@@ -359,7 +365,7 @@
 
                                         <TextBlock x:Phase="1"
                                    Grid.Column="2"
-                                   Text="{x:Bind Length, Converter={StaticResource TimeToStr}}"
+                                   Text="{x:Bind Converter={StaticResource TimeToStr}, Path=Length}"
                                    VerticalAlignment="Center" />
                                     </Grid>
                                 </DataTemplate>

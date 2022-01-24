@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Graphics.Imaging;
@@ -20,7 +21,6 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Markup;
 using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using static Rise.App.Common.Enums;
 using NavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
@@ -79,7 +79,11 @@ namespace Rise.App.Views
             SViewModel.PropertyChanged += SViewModel_PropertyChanged;
             _ = NowPlayingFrame.Navigate(typeof(NowPlaying));
         }
-
+        internal string AccountMenuText
+        {
+            get { return Acc.Text.ToString(); }
+            set { Acc.Text = value; }
+        }
         private void MainPage_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             if (ApplicationView.GetForCurrentView().ViewMode == ApplicationViewMode.CompactOverlay)
@@ -98,11 +102,11 @@ namespace Rise.App.Views
             if (e.NewSize.Width < 800 && IsInPageWithoutHeader)
             {
                 ContentFrame.Margin = new Thickness(0, 48, 0, 0);
-            } 
+            }
             else if (e.NewSize.Width < 800 && !IsInPageWithoutHeader)
             {
                 ContentFrame.Margin = new Thickness(0);
-            } 
+            }
             else if (e.NewSize.Width >= 800)
             {
                 ContentFrame.Margin = new Thickness(0);
@@ -446,7 +450,7 @@ namespace Rise.App.Views
 
         public async Task HandleViewModelColorSettingAsync()
         {
-            var uiSettings = new UISettings();
+            UISettings uiSettings = new();
             Color accentColor = uiSettings.GetColorValue(UIColorType.Accent);
 
             byte opacity = 25;
@@ -455,19 +459,17 @@ namespace Rise.App.Views
                 case -3:
                     if (App.PViewModel.CurrentSong != null)
                     {
-                        Uri imageUri = new Uri(App.PViewModel.CurrentSong.Thumbnail);
+                        Uri imageUri = new(App.PViewModel.CurrentSong.Thumbnail);
                         _Grid.Background = new SolidColorBrush(Colors.Transparent);
                         if (App.PViewModel.CurrentSong.Thumbnail != "ms-appx:///Assets/Default.png")
                         {
                             RandomAccessStreamReference random = RandomAccessStreamReference.CreateFromUri(imageUri);
-                            using (IRandomAccessStream stream = await random.OpenReadAsync())
-                            {
-                                var decoder = await BitmapDecoder.CreateAsync(stream);
-                                var colorThief = new ColorThiefDotNet.ColorThief();
+                            using IRandomAccessStream stream = await random.OpenReadAsync();
+                            BitmapDecoder decoder = await BitmapDecoder.CreateAsync(stream);
+                            var colorThief = new ColorThiefDotNet.ColorThief();
 
-                                var color = await colorThief.GetColor(decoder);
-                                _Grid.Background = new SolidColorBrush(Color.FromArgb(opacity, color.Color.R, color.Color.G, color.Color.B));
-                            }
+                            ColorThiefDotNet.QuantizedColor color = await colorThief.GetColor(decoder);
+                            _Grid.Background = new SolidColorBrush(Color.FromArgb(opacity, color.Color.R, color.Color.G, color.Color.B));
                         }
                     }
                     break;
@@ -672,20 +674,21 @@ namespace Rise.App.Views
                 case 47:
                     _Grid.Background = new SolidColorBrush(Color.FromArgb(opacity, 126, 115, 95));
                     break;
-
+                default:
+                    break;
             }
         }
         #endregion
 
         private async Task<bool> OpenPageAsWindowAsync(Type t)
         {
-            var view = CoreApplication.CreateNewView();
+            CoreApplicationView view = CoreApplication.CreateNewView();
             int id = 0;
 
             await view.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                var frame = new Frame();
-                frame.Navigate(t, null);
+                Frame frame = new();
+                _ = frame.Navigate(t, null);
                 Window.Current.Content = frame;
                 Window.Current.Activate();
                 id = ApplicationView.GetForCurrentView().Id;
@@ -696,7 +699,7 @@ namespace Rise.App.Views
 
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
-            await OpenPageAsWindowAsync(typeof(Web.FeedbackPage));
+            _ = await OpenPageAsWindowAsync(typeof(Web.FeedbackPage));
         }
 
         private async void StartScan_Click(object sender, RoutedEventArgs e)
@@ -761,9 +764,30 @@ namespace Rise.App.Views
             }
         }
 
-        private void AppTitleBar_Loaded(object sender, RoutedEventArgs e)
-        {
 
+        private async Task<bool> GetFileStatus()
+        {
+            Windows.Storage.StorageFolder appFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
+            Windows.Storage.IStorageItem file = await appFolder.TryGetItemAsync("userid.txt");
+            return file != null;
+        }
+        private async void AppTitleBar_Loaded(object sender, RoutedEventArgs e)
+        {
+            bool fileexists = await GetFileStatus();
+            if (fileexists)
+            {
+                Windows.Storage.StorageFile file = await Windows.Storage.ApplicationData.Current.LocalFolder.GetFileAsync("userid.txt");
+                string content = System.IO.File.ReadAllText(file.Path.ToString());
+                file = await Windows.Storage.ApplicationData.Current.LocalFolder.GetFileAsync("signature.txt");
+                string signature = System.IO.File.ReadAllText(file.Path.ToString());
+                file = await Windows.Storage.ApplicationData.Current.LocalFolder.GetFileAsync("name.txt");
+                string name = System.IO.File.ReadAllText(file.Path.ToString());
+                App app = Application.Current as App;
+                app.sessionkey = content;
+                app.signature = signature;
+                Acc.Text = name;
+            }
+            else { }
         }
 
         private async void Messages_Click(object sender, RoutedEventArgs e)
@@ -776,9 +800,9 @@ namespace Rise.App.Views
                 Content = new MessagesDialog()
             };
 
-            await dialog.ShowAsync();
+            _ = await dialog.ShowAsync();
         }
-        
+
         private async void Support_Click(object sender, RoutedEventArgs e)
             => _ = await URLs.Support.LaunchAsync();
 
@@ -792,7 +816,7 @@ namespace Rise.App.Views
             {
                 case "Album":
                     AlbumViewModel album = App.MViewModel.Albums.FirstOrDefault(a => a.Title.Equals(searchItem.Title));
-                    ContentFrame.Navigate(typeof(AlbumSongsPage), album);
+                    _ = ContentFrame.Navigate(typeof(AlbumSongsPage), album);
                     break;
                 case "Song":
                     SongViewModel song = App.MViewModel.Songs.FirstOrDefault(s => s.Title.Equals(searchItem.Title));
@@ -800,7 +824,7 @@ namespace Rise.App.Views
                     break;
                 case "Artist":
                     ArtistViewModel artist = App.MViewModel.Artists.FirstOrDefault(a => a.Name.Equals(searchItem.Title));
-                    ContentFrame.Navigate(typeof(ArtistSongsPage), artist);
+                    _ = ContentFrame.Navigate(typeof(ArtistSongsPage), artist);
                     break;
             }
         }
@@ -809,10 +833,10 @@ namespace Rise.App.Views
         {
             if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
-                List<SearchItemViewModel> suitableItems = new List<SearchItemViewModel>();
-                List<ArtistViewModel> suitableArtists = new List<ArtistViewModel>();
-                List<SongViewModel> suitableSongs = new List<SongViewModel>();
-                List<AlbumViewModel> suitableAlbums = new List<AlbumViewModel>();
+                List<SearchItemViewModel> suitableItems = new();
+                List<ArtistViewModel> suitableArtists = new();
+                List<SongViewModel> suitableSongs = new();
+                List<AlbumViewModel> suitableAlbums = new();
 
                 int maxCount = 4;
 
@@ -883,7 +907,7 @@ namespace Rise.App.Views
 
         private void BigSearch_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
-            ContentFrame.Navigate(typeof(SearchResultsPage), sender.Text);
+            _ = ContentFrame.Navigate(typeof(SearchResultsPage), sender.Text);
         }
 
         private void BigSearch_GotFocus(object sender, RoutedEventArgs e)
@@ -901,10 +925,23 @@ namespace Rise.App.Views
             if (string.IsNullOrWhiteSpace(str))
             {
                 return Visibility.Collapsed;
-            } 
+            }
             else
             {
                 return Visibility.Visible;
+            }
+        }
+
+        private async void Account_Click(object sender, RoutedEventArgs e)
+        {
+            if (Acc.Text != "Add an account")
+            {
+                string url = "https://www.last.fm/user/" + Acc.Text;
+                _ = await Windows.System.Launcher.LaunchUriAsync(new Uri(url));
+            }
+            else
+            {
+                _ = await SDialog.ShowAsync(ExistingDialogOptions.Enqueue);
             }
         }
     }
@@ -951,7 +988,4 @@ namespace Rise.App.Views
             return Title;
         }
     }
-
-    
-
 }

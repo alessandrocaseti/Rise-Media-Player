@@ -27,7 +27,7 @@
             </muxc:TeachingTip>
 
 
-            <uc:AdaptiveItemPane Loaded="AdaptiveItemPane_Loaded_1">
+            <uc:AdaptiveItemPane>
                 <uc:AdaptiveItemPane.LeftPane>
                     <Image Height="33"
                            Source="ms-appx:///Assets/Branding/settingsbanner.png" />
@@ -134,7 +134,6 @@
             <muxc:TeachingTip x:Name="vTip"
                           x:Uid="/About/More"
                           ActionButtonClick="VTip_ActionButtonClick"
-                          CloseButtonClick="VTip_CloseButtonClick"
                           IsLightDismissEnabled="True"
                           Target="{x:Bind Version}" />
         </StackPanel>

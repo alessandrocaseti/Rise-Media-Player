@@ -246,6 +246,7 @@
                                     CornerRadius="42">
                                 <Image
                                        Height="84"
+                                       Name="ImgOFArt"
                                        Source="{x:Bind Picture, Mode=OneWay}"
                                        Stretch="UniformToFill"
                                        Width="84" />

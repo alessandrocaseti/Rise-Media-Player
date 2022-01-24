@@ -1,7 +1,6 @@
 ﻿using Rise.App.Common;
 using Rise.App.ViewModels;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
