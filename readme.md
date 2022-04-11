@@ -93,7 +93,7 @@ Currently, all users can try out the MSIX packages. When we move to the store, y
 *1 Any Windows device running Windows 10 1903 or later. Windows Mobile/Windows Phone is not supported.*
 
 ### MSIX Install Instructions 
-**If Windows Prompts about Untrusted Application**
+**If Windows doesn't Prompts about Untrusted Application**
 * Simply right click the MSIX and click Properties
 * Go to Digital signatures Tab
 * Select Rise Software and click Details
